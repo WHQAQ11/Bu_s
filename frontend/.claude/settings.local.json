@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/Project/Bu_backend/Bu-backend/src/routes/**)",
+      "Read(//d/Project/Bu_backend/Bu-backend/src/models/**)",
+      "Read(//d/Project/Bu_backend/Bu-backend/src/middleware/**)",
+      "Bash(npm run build:*)",
+      "mcp__filesystem__directory_tree",
+      "Bash(npm install:*)",
+      "mcp__filesystem__list_allowed_directories",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__list_directory",
+      "mcp__supabase__execute_sql"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
