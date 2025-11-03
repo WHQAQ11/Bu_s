@@ -127,16 +127,7 @@ export const useAuthStore = create<AuthStore>()(
         try {
           set({ isLoading: true });
 
-          // ✅ 添加超时机制：5秒超时
-          const timeoutPromise = new Promise((resolve) => {
-            setTimeout(() => {
-              console.warn('⚠️ [authStore] initializeAuth 超时（5秒），设置为未认证状态');
-              resolve('TIMEOUT');
-            }, 5000);
-          });
-
-          const initPromise = (async () => {
-            try {
+          try {
               // 检查Supabase会话状态
               const isAuthenticated = await AuthService.isAuthenticated();
 
@@ -166,25 +157,10 @@ export const useAuthStore = create<AuthStore>()(
                   isLoading: false,
                 });
               }
-              return 'SUCCESS';
             } catch (err) {
               console.error('❌ [authStore] initializeAuth 出错:', err);
               throw err;
             }
-          })();
-
-          // ✅ 竞速：取决于哪个先完成
-          const result = await Promise.race([initPromise, timeoutPromise]);
-
-          if (result === 'TIMEOUT') {
-            // 超时时设置为未认证状态，允许用户操作
-            set({
-              user: null,
-              token: null,
-              isAuthenticated: false,
-              isLoading: false,
-            });
-          }
         } catch (error) {
           console.error('❌ [authStore] 初始化认证状态失败:', error);
           // ✅ 失败时也设置为未认证，而不是永远加载

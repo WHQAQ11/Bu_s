@@ -74,3 +74,17 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Project-specific temporary files
+# 认证流程优化相关文档
+修改清单-认证流程优化.md
+验证报告-认证流程优化.md
+*/迁移清单报告/
+*/完成报告.md
+
+# Claude Code temporary files
+.claude/
+
+# Temporary files and directories
+temp/
+tmp/

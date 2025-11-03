@@ -44,33 +44,45 @@ export class AuthService {
       }
 
       if (data.user && data.session) {
-        // ✅ 修复：添加超时机制（3秒）来查询users表
+        // ✅ 优化：查询users表获取用户扩展信息
         let profile: UserProfile | null = null;
 
         try {
-          const timeoutPromise = new Promise((resolve) => {
-            setTimeout(() => {
-              console.warn("⚠️ [AuthService] 查询users表超时（3秒），使用默认用户信息");
-              resolve(null);
-            }, 3000);
-          });
-
-          const queryPromise = supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('users')
             .select('*')
             .eq('id', data.user.id)
             .single();
 
-          const result = await Promise.race([
-            queryPromise,
-            timeoutPromise
-          ]);
+          if (profileError) {
+            if (profileError.code === 'PGRST116') {
+              // 记录不存在，创建新记录
+              console.log("📝 [AuthService] users表中无记录，创建新记录");
+              const { data: newProfile, error: createError } = await supabase
+                .from('users')
+                .upsert({
+                  id: data.user.id,
+                  email: data.user.email || '',
+                  nickname: data.user.user_metadata?.nickname || null,
+                })
+                .select()
+                .single();
 
-          if (result && typeof result === 'object' && 'data' in result) {
-            profile = (result as any).data;
+              if (!createError && newProfile) {
+                profile = newProfile;
+                console.log("✅ [AuthService] 成功创建users记录");
+              } else {
+                console.warn("⚠️ [AuthService] 创建users记录失败:", createError);
+              }
+            } else {
+              console.warn("⚠️ [AuthService] 查询users表失败:", profileError);
+            }
+          } else {
+            profile = profileData;
+            console.log("✅ [AuthService] 成功获取用户扩展信息");
           }
         } catch (profileError) {
-          console.warn("⚠️ [AuthService] 查询users表失败，使用默认用户信息:", profileError);
+          console.warn("⚠️ [AuthService] 处理users表时发生错误:", profileError);
           // 继续，不中断登录流程
         }
 
@@ -136,35 +148,46 @@ export class AuthService {
         return null;
       }
 
-      // ✅ 修复：添加超时机制（3秒）来查询users表
-      // 如果users表查询超时，就直接使用auth user的信息
+      // ✅ 优化：查询users表获取用户扩展信息
       let profile: UserProfile | null = null;
 
       try {
-        const timeoutPromise = new Promise((resolve) => {
-          setTimeout(() => {
-            console.warn("⚠️ [AuthService] 查询users表超时（3秒），使用默认用户信息");
-            resolve(null);
-          }, 3000);
-        });
-
-        const queryPromise = supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('users')
           .select('*')
           .eq('id', user.id)
           .single();
 
-        const result = await Promise.race([
-          queryPromise,
-          timeoutPromise
-        ]);
+        if (profileError) {
+          if (profileError.code === 'PGRST116') {
+            // 记录不存在，可能是因为数据库触发器还没执行
+            console.log("📝 [AuthService] users表中无记录，尝试创建新记录");
+            const { data: newProfile, error: createError } = await supabase
+              .from('users')
+              .upsert({
+                id: user.id,
+                email: user.email || '',
+                nickname: user.user_metadata?.nickname || null,
+              })
+              .select()
+              .single();
 
-        if (result && typeof result === 'object' && 'data' in result) {
-          profile = (result as any).data;
+            if (!createError && newProfile) {
+              profile = newProfile;
+              console.log("✅ [AuthService] 成功创建users记录");
+            } else {
+              console.warn("⚠️ [AuthService] 创建users记录失败:", createError);
+            }
+          } else {
+            console.warn("⚠️ [AuthService] 查询users表失败:", profileError);
+          }
+        } else {
+          profile = profileData;
+          console.log("✅ [AuthService] 成功获取用户扩展信息");
         }
       } catch (profileError) {
-        console.warn("⚠️ [AuthService] 查询users表失败，使用默认用户信息:", profileError);
-        // 如果查询失败，继续使用null的profile
+        console.warn("⚠️ [AuthService] 处理users表时发生错误:", profileError);
+        // 继续，使用基础用户信息
       }
 
       return adaptSupabaseUser(user, profile);
