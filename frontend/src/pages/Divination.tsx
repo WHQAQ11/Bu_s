@@ -167,49 +167,57 @@ const Divination: React.FC = () => {
         console.log("✅ [Divination] 获得真实卦象:", result.data.result);
 
         // 🔄 数据格式转换：后端的originalGua→benGuaInfo, changedGua→bianGuaInfo
-        const apiResult = result.data.result;
+        const divResult = result.data.result as DivinationResult;
         const transformedData = {
           ...result.data,
-          result: {
-            ...apiResult,
-            // 转换本卦信息
-            benGuaInfo: {
-              name: apiResult.originalGua?.name,
-              number: apiResult.originalGua?.number,
-              shang: apiResult.originalGua?.upperTrigram,
-              xia: apiResult.originalGua?.lowerTrigram,
-              guaCi: apiResult.interpretation?.guaci,
-              yaoCI: apiResult.interpretation?.yaoci,
-              shiyi: apiResult.interpretation?.shiyi, // 《彖》曰的内容
-              tuanCI: apiResult.interpretation?.shiyi,
-              analysis: apiResult.interpretation?.analysis,
-              // 从yaos数组提取原卦爻值
-              originalHexagram: apiResult.originalGua?.yaos?.map((yao: any) => yao.value) || [],
-              // 变卦爻值
-              transformedHexagram: apiResult.changedGua?.yaos?.map((yao: any) => yao.value) || apiResult.originalGua?.yaos?.map((yao: any) => yao.value) || [],
-              // 动爻索引
-              changingLineIndexes: apiResult.originalGua?.yaos
-                ?.map((yao: any, index: number) => yao.isChanging ? index : -1)
-                .filter((index: number) => index >= 0) || [],
-            },
-            // 转换变卦信息
-            bianGuaInfo: apiResult.changedGua ? {
-              name: apiResult.changedGua.name,
-              number: apiResult.changedGua.number,
-              shang: apiResult.changedGua.upperTrigram,
-              xia: apiResult.changedGua.lowerTrigram,
-              guaCi: apiResult.interpretation?.guaci,
-              guaci: apiResult.interpretation?.guaci,
-              shiyi: apiResult.interpretation?.shiyi,
-              tuanCI: apiResult.interpretation?.shiyi,
-            } : null,
-          }
+          result: divResult
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         };
 
         console.log("✅ [Divination] 转换后的数据:", transformedData.result.benGuaInfo);
 
         // 将转换后的真实占卜数据保存到状态
-        setRealDivinationData(transformedData.result);
+        setRealDivinationData({
+          originalHexagram: divResult.originalHexagram,
+          originalHexagramArray: divResult.originalHexagramArray,
+          transformedHexagram: divResult.transformedHexagram,
+          transformedHexagramArray: divResult.transformedHexagramArray,
+          benGuaInfo: divResult.benGuaInfo,
+          bianGuaInfo: divResult.bianGuaInfo,
+          changingLineIndexes: divResult.changingLineIndexes || [],
+        });
 
         // 现在再显示动画，动画会使用真实数据
         setShowAnimation(true);

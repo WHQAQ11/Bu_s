@@ -36,7 +36,7 @@ export class DivinationService {
       }
 
       const { data: result, error } = await supabase
-        .from('divination_records')
+        .from('divination_logs')
         .insert([
           {
             user_id: user.id,
@@ -45,9 +45,10 @@ export class DivinationService {
             category: data.category,
             original_hexagram: data.original_hexagram,
             transformed_hexagram: data.transformed_hexagram,
-            changing_lines: data.changing_indexes,
-            ben_gua_name: data.ben_gua_info?.name,
-            bian_gua_name: data.bian_gua_info?.name,
+            changing_indexes: data.changing_indexes,
+            ben_gua_info: data.ben_gua_info,
+            bian_gua_info: data.bian_gua_info,
+            ai_request_data: data.ai_request_data,
           },
         ])
         .select()
@@ -80,7 +81,7 @@ export class DivinationService {
   ): Promise<DivinationLogsResponse> {
     try {
       let query = supabase
-        .from('divination_records')
+        .from('divination_logs')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
 
@@ -126,7 +127,7 @@ export class DivinationService {
   static async getDivinationLogById(id: string): Promise<DivinationLogResponse> {
     try {
       const { data, error } = await supabase
-        .from('divination_records')
+        .from('divination_logs')
         .select('*')
         .eq('id', id)
         .single()
@@ -162,7 +163,7 @@ export class DivinationService {
       }
 
       const { data, error } = await supabase
-        .from('divination_records')
+        .from('divination_logs')
         .update(updateData)
         .eq('id', id)
         .select()
@@ -185,12 +186,13 @@ export class DivinationService {
    */
   static async updateInterpretationStatus(
     id: string,
-    _status: 'pending' | 'processing' | 'completed' | 'failed'
+    status: 'pending' | 'processing' | 'completed' | 'failed'
   ): Promise<DivinationLogResponse> {
     try {
       const { data, error } = await supabase
-        .from('divination_records')
+        .from('divination_logs')
         .update({
+          interpretation_status: status,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -215,7 +217,7 @@ export class DivinationService {
   static async deleteDivinationLog(id: string): Promise<{ error: PostgrestError | null }> {
     try {
       const { error } = await supabase
-        .from('divination_records')
+        .from('divination_logs')
         .delete()
         .eq('id', id)
 
@@ -280,7 +282,7 @@ export class DivinationService {
   } | null> {
     try {
       let query = supabase
-        .from('divination_records')
+        .from('divination_logs')
         .select('method, category, created_at')
 
       if (userId) {
@@ -348,7 +350,7 @@ export class DivinationService {
   static async deleteDivinationLogs(ids: string[]): Promise<{ error: PostgrestError | null }> {
     try {
       const { error } = await supabase
-        .from('divination_records')
+        .from('divination_logs')
         .delete()
         .in('id', ids)
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimationComponentProps } from "./DivinationAnimation";
 import YaoSymbol from "./YaoSymbol";
@@ -67,6 +67,7 @@ export const LiuYaoAnimation: React.FC<AnimationComponentProps> = ({
   const [isCallingAPI, setIsCallingAPI] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [realDivinationResult, setRealDivinationResult] = useState<any>(null);
+  const hasProcessedTransformationRef = useRef(false);
 
   // 生成随机铜钱结果 - 恢复位置参数
   const generateCoinResult = useCallback((): CoinResult[] => {
@@ -333,6 +334,10 @@ export const LiuYaoAnimation: React.FC<AnimationComponentProps> = ({
   // 处理变卦完成
   useEffect(() => {
     if (stage === LiuYaoStage.TRANSFORMATION) {
+      if (hasProcessedTransformationRef.current) {
+        return;
+      }
+      hasProcessedTransformationRef.current = true;
       console.log("🔄 [占卜流程] 进入变卦阶段，爻线数量:", yaoResults.length);
 
       // 计算本卦和变卦的卦名
@@ -385,7 +390,8 @@ export const LiuYaoAnimation: React.FC<AnimationComponentProps> = ({
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [stage, yaoResults, navigate, question, category, callRealDivinationAPI, generateMockResult, convertAPIResultToDisplayFormat]);
+    hasProcessedTransformationRef.current = false;
+  }, [stage, yaoResults, question, category, realDivinationData, onComplete]);
 
   // 渲染铜钱组件 - 参考HTML代码结构
   const renderCoin = (coin: CoinResult, index: number) => {

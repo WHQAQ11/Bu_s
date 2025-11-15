@@ -40,17 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(session.user)
             setSession(session)
 
-            // ✅ 修复：添加超时机制（2秒）
             try {
-              const timeoutPromise = new Promise((resolve) => {
-                setTimeout(() => {
-                  console.warn("⚠️ [AuthProvider] 获取用户资料超时（2秒）");
-                  resolve(null);
-                }, 2000);
-              });
-
-              const profilePromise = AuthService.getCurrentUser();
-              const userProfile = await Promise.race([profilePromise, timeoutPromise]);
+              const userProfile = await AuthService.getCurrentUser();
               setProfile((userProfile || null) as any);
             } catch (error) {
               console.warn("⚠️ [AuthProvider] 获取用户资料失败:", error);
@@ -78,35 +69,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const initializeAuth = async () => {
     try {
-      // ✅ 修复：添加超时机制（2秒）
-      const timeoutPromise = new Promise((resolve) => {
-        setTimeout(() => {
-          console.warn("⚠️ [AuthProvider] 初始化认证超时（2秒）");
-          resolve(null);
-        }, 2000);
-      });
+      const { session } = await AuthService.getCurrentSession()
 
-      const initPromise = (async () => {
-        const { session } = await AuthService.getCurrentSession()
-        return session;
-      })();
+      if (session?.user) {
+        setUser(session.user)
+        setSession(session)
 
-      const session = await Promise.race([initPromise, timeoutPromise]);
-
-      if (session && typeof session === 'object' && 'user' in session) {
-        setUser((session as any).user)
-        setSession(session as any)
-
-        // ✅ 修复：添加超时机制（2秒）来获取用户资料
         try {
-          const profileTimeoutPromise = new Promise((resolve) => {
-            setTimeout(() => {
-              console.warn("⚠️ [AuthProvider] 获取用户资料超时（2秒）");
-              resolve(null);
-            }, 2000);
-          });
-
-          const userProfile = await Promise.race([AuthService.getCurrentUser(), profileTimeoutPromise]);
+          const userProfile = await AuthService.getCurrentUser();
           setProfile((userProfile || null) as any)
         } catch (profileError) {
           console.warn("⚠️ [AuthProvider] 获取用户资料失败:", profileError);
@@ -132,16 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           setUser(session.user);
 
-          // ✅ 修复：添加超时机制（2秒）
           try {
-            const timeoutPromise = new Promise((resolve) => {
-              setTimeout(() => {
-                console.warn("⚠️ [AuthProvider] 登录时获取用户资料超时（2秒）");
-                resolve(null);
-              }, 2000);
-            });
-
-            const userProfile = await Promise.race([AuthService.getCurrentUser(), timeoutPromise]);
+            const userProfile = await AuthService.getCurrentUser();
             setProfile((userProfile || null) as any);
           } catch (profileError) {
             console.warn("⚠️ [AuthProvider] 登录时获取用户资料失败:", profileError);

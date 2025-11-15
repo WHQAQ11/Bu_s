@@ -129,32 +129,22 @@ const Profile: React.FC = () => {
       // 处理历史记录数据
       if (historyResponse.data) {
         const formattedHistory: DivinationRecord[] = historyResponse.data.map((log: any) => {
-          // 提取卦象信息
-          let result = {
-            name: "未知卦",
-            number: 1,
-            upperTrigram: "乾",
-            lowerTrigram: "乾",
+          const ben = log.ben_gua_info || null;
+          const result = {
+            name: ben?.name || "未知卦",
+            number: ben?.number || 0,
+            upperTrigram: ben?.upperTrigram || "",
+            lowerTrigram: ben?.lowerTrigram || "",
           };
-
-          if (log.raw_result?.result?.originalGua) {
-            const originalGua = log.raw_result.result.originalGua;
-            result = {
-              name: originalGua.name || "未知卦",
-              number: originalGua.number || 1,
-              upperTrigram: originalGua.upperTrigram || "乾",
-              lowerTrigram: originalGua.lowerTrigram || "乾",
-            };
-          }
 
           return {
             id: log.id,
             method: log.method,
             question: log.question,
-            result: result,
+            result,
             aiInterpretation: log.ai_interpretation || undefined,
             timestamp: log.created_at,
-            category: "general" // 可以后续根据问题内容分析分类
+            category: log.category || "general"
           };
         });
 

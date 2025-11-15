@@ -65,10 +65,10 @@ export default {
         serif: ['"Noto Serif SC"', '"SimSun"', 'serif'],
       },
       backgroundImage: {
-        'cosmic-gradient': 'radial-gradient(ellipse at top, #1e3a8a 0%, #1e1b4b 50%, #0f172a 100%)',
+        'cosmic-gradient': 'linear-gradient(140deg, #f4f2e7 0%, #dde8d2 30%, #b8d0a3 55%, #6e9a7a 80%, #1f2f2f 100%)',
         'mystical-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         'golden-gradient': 'linear-gradient(135deg, #fde047 0%, #eab308 100%)',
-        'divination-pattern': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a78bfa' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+        'divination-pattern': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2375a88d' fill-opacity='0.06'%3E%3Cpath d='M30 3l3 7 7 3-7 3-3 7-3-7-7-3 7-3zM9 27l2 4 4 2-4 2-2 4-2-4-4-2 4-2zM51 39l2 5 5 2-5 2-2 5-2-5-5-2 5-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
