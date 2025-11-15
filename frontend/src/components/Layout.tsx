@@ -32,7 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      logout();
+      await logout();
       navigate("/");
       setIsMobileMenuOpen(false);
     } catch (error) {

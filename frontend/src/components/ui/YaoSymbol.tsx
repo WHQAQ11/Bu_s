@@ -119,7 +119,7 @@ const YaoSymbol: React.FC<YaoSymbolProps> = ({
         <filter id="inset-shadow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
           <feOffset in="blur" dx="0" dy="2" result="offsetBlur" />
-          <feFlood flood-color="#000000" flood-opacity="0.3" result="color" />
+          <feFlood floodColor="#000000" floodOpacity="0.3" result="color" />
           <feComposite
             in="color"
             in2="offsetBlur"
@@ -152,7 +152,7 @@ const YaoSymbol: React.FC<YaoSymbolProps> = ({
             in="blur"
             specularConstant="1.5"
             specularExponent="20"
-            lighting-color="white"
+            lightingColor="white"
           >
             <feDistantLight azimuth="45" elevation="60" />
           </feSpecularLighting>

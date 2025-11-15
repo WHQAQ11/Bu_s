@@ -48,31 +48,48 @@ export class DivinationService {
       console.log(`🎯 [${requestId}] 占卜计算完成:`, {
         original_hexagram: result.originalHexagram,
         transformed_hexagram: result.transformedHexagram,
-        changing_lines: result.changingLineIndexes,
+        changing_indexes: result.changingLineIndexes,
         ben_gua_name: result.benGuaInfo?.name,
         has_bian_gua: !!result.bianGuaInfo
       });
 
-      // 保存占卜记录到数据库
-      const logResponse = await SupabaseDivinationService.createDivinationLog({
+      console.log(`📝 [${requestId}] 准备写入 Supabase，占卜结果:`, result);
+
+      const createPromise = SupabaseDivinationService.createDivinationLog({
         method,
         question,
         category: inputData?.category,
-        original_hexagram: result.originalHexagramArray || [7,7,7,7,7,7],  // 转换为数组格式
-        transformed_hexagram: result.transformedHexagramArray,
-        changing_lines: result.changingLineIndexes,
-        ben_gua_name: result.benGuaInfo?.name || "未知卦象",
-        bian_gua_name: result.bianGuaInfo?.name,
-        basic_interpretation: result.benGuaInfo?.guaci || "卦辞信息暂未找到"
+        original_hexagram: result.originalHexagram,
+        transformed_hexagram: result.transformedHexagram,
+        changing_indexes: result.changingLineIndexes,
+        ben_gua_info: result.benGuaInfo,
+        bian_gua_info: result.bianGuaInfo,
+        ai_request_data: {
+          method,
+          question,
+          category: inputData?.category,
+        }
       });
 
-      if (logResponse.error) {
+      const timeoutMs = 6000;
+      const timeoutPromise = new Promise<{ data: any; error: any }>((resolve) => {
+        const t = setTimeout(() => {
+          clearTimeout(t);
+          resolve({ data: null, error: { message: 'TIMEOUT' } });
+        }, timeoutMs);
+      });
+
+      const logResponse = await Promise.race([createPromise as any, timeoutPromise]);
+
+      console.log(`📦 [${requestId}] Supabase insert 响应:`, logResponse);
+
+      if (logResponse && logResponse.error && logResponse.error.message !== 'TIMEOUT') {
         console.error(`❌ [${requestId}] 保存占卜记录失败:`, logResponse.error);
         throw new Error(`保存占卜记录失败: ${logResponse.error.message}`);
       }
 
       console.log(`✅ [${requestId}] 占卜记录保存成功:`, {
-        log_id: logResponse.data?.id,
+        log_id: logResponse && logResponse.data ? logResponse.data?.id : undefined,
         method,
         question_preview: question.substring(0, 30) + "..."
       });

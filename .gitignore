@@ -85,6 +85,7 @@ jspm_packages/
 # Claude Code temporary files
 .claude/
 
+.Claude.md
 # Temporary files and directories
 temp/
 tmp/
